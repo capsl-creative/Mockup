@@ -549,7 +549,7 @@ async function handleRegister() {
   const password = document.getElementById('reg-password').value;
   if (!first||!last||!email||!password) { showAuthMsg('Please fill in all required fields.'); return; }
   setLoading(true);
-  const { data, error } = await sb.auth.signUp({ email, password, options: { data: { first_name: first, last_name: last, phone, tenant_slug: window.TENANT?.slug } } });
+  const { data, error } = await sb.auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin, data: { first_name: first, last_name: last, phone, tenant_slug: window.TENANT?.slug } } });
   if (error) { setLoading(false); showAuthMsg(error.message); return; }
   setLoading(false);
   showAuthMsg('Account created! Please check your email to confirm, then sign in.', 'success');
