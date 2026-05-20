@@ -363,8 +363,106 @@
   </div>
 </div>
 
+  <div class="page" id="page-reports">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Reports &amp; Analytics</h1>
+      <p class="page-subtitle">Customize your dashboard. Drag widgets to reorder.</p>
+    </div>
+    <div style="display:flex;gap:.55rem;flex-wrap:wrap">
+      <button class="btn btn-outline btn-sm" id="rpt-toggle-add-btn" onclick="rptToggleAddPanel()">＋ Add Widget</button>
+      <button class="btn btn-primary btn-sm" onclick="openModal('rpt-export-modal')">⬇ Export Report</button>
+    </div>
+  </div>
+ 
+  <!-- Toolbar -->
+  <div class="reports-toolbar">
+    <span class="toolbar-label">Period</span>
+    <div class="toggle-group" id="rpt-period-grp">
+      <button class="toggle-btn" onclick="rptSetPeriod('ytd',this)">YTD</button>
+      <button class="toggle-btn active" onclick="rptSetPeriod('all',this)">All Time</button>
+      <button class="toggle-btn" onclick="rptSetPeriod('90d',this)">Last 90d</button>
+      <button class="toggle-btn" onclick="rptSetPeriod('30d',this)">Last 30d</button>
+    </div>
+    <div class="toolbar-sep"></div>
+    <span class="toolbar-label">Program</span>
+    <select class="mini-select" id="rpt-prog-filter" onchange="rptApplyFilters()">
+      <option value="all">All Programs</option>
+    </select>
+    <div class="toolbar-sep"></div>
+    <span style="font-size:.75rem;color:var(--text-light);font-weight:700" id="rpt-refreshed">Loaded just now</span>
+    <button class="btn btn-ghost btn-sm" onclick="initReports()" style="margin-left:auto">⟳ Refresh</button>
+  </div>
+ 
+  <!-- Add-widget panel (hidden by default) -->
+  <div id="rpt-add-panel" style="display:none"></div>
+ 
+  <!-- Widget grid -->
+  <div class="rpt-grid" id="rpt-widget-grid">
+    <div class="rpt-col-12" style="text-align:center;padding:3rem;color:var(--text-muted)">
+      <div class="spinner"></div>
+    </div>
+  </div>
+</div>
+ 
+
 <!-- MODALS -->
 
+  <!-- Volunteer detail modal -->
+<div class="modal-overlay" id="rpt-vol-modal">
+  <div class="modal" style="max-width:520px">
+    <button class="modal-close" onclick="closeModal('rpt-vol-modal')">✕</button>
+    <div id="rpt-vol-modal-content"></div>
+  </div>
+</div>
+ <!-- Export modal -->
+<div class="modal-overlay" id="rpt-export-modal">
+  <div class="modal" style="max-width:460px">
+    <button class="modal-close" onclick="closeModal('rpt-export-modal')">✕</button>
+    <h3>Export Custom Report</h3>
+    <p style="font-size:.82rem;color:var(--text-muted);margin-bottom:.65rem">Choose what to include.</p>
+ 
+    <div class="rpt-export-section-title">Sections</div>
+    <div class="rpt-check-grid" id="rpt-export-sections">
+      <label class="rpt-check-item"><input type="checkbox" checked value="summary"> Summary Stats</label>
+      <label class="rpt-check-item"><input type="checkbox" checked value="volunteers"> Volunteer Hours</label>
+      <label class="rpt-check-item"><input type="checkbox" checked value="programs"> Program Breakdown</label>
+      <label class="rpt-check-item"><input type="checkbox" checked value="impact"> Impact Metrics</label>
+      <label class="rpt-check-item"><input type="checkbox" checked value="engagement"> Engagement Scores</label>
+      <label class="rpt-check-item"><input type="checkbox" value="retention"> Retention Rates</label>
+      <label class="rpt-check-item"><input type="checkbox" value="events"> Top Events</label>
+      <label class="rpt-check-item"><input type="checkbox" value="newvols"> New Volunteers</label>
+    </div>
+ 
+    <div class="rpt-export-section-title">Date Range</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.55rem">
+      <div>
+        <label style="font-size:.72rem;font-weight:800;color:var(--text-muted);display:block;margin-bottom:.3rem">From</label>
+        <input type="date" id="rpt-export-from" style="width:100%;padding:.45rem .7rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:.83rem;color:var(--text);outline:none">
+      </div>
+      <div>
+        <label style="font-size:.72rem;font-weight:800;color:var(--text-muted);display:block;margin-bottom:.3rem">To</label>
+        <input type="date" id="rpt-export-to" style="width:100%;padding:.45rem .7rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:.83rem;color:var(--text);outline:none">
+      </div>
+    </div>
+ 
+    <div class="rpt-export-section-title">Format</div>
+    <div class="rpt-fmt-row">
+      <button class="rpt-fmt-btn active" onclick="rptSetExportFmt('csv',this)">CSV</button>
+      <button class="rpt-fmt-btn" onclick="rptSetExportFmt('json',this)">JSON</button>
+      <button class="rpt-fmt-btn" onclick="rptSetExportFmt('pdf',this)">PDF (print)</button>
+    </div>
+ 
+    <div class="rpt-export-section-title">Report Title</div>
+    <input type="text" id="rpt-export-title" placeholder="e.g. Q1 2025 Volunteer Impact Report"
+      style="width:100%;padding:.5rem .8rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:.85rem;color:var(--text);outline:none;margin-bottom:1.1rem">
+ 
+    <div style="display:flex;gap:.6rem;justify-content:flex-end">
+      <button class="btn btn-outline" onclick="closeModal('rpt-export-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="rptRunExport()">⬇ Download</button>
+    </div>
+  </div>
+</div>
 <!-- Edit Volunteer -->
 <div class="modal-overlay" id="vol-modal">
   <div class="modal">
@@ -1522,6 +1620,819 @@ window.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('ev-start').addEventListener('change', onEventTimeChange);
   document.getElementById('ev-end').addEventListener('change', onEventTimeChange);
 });
+
+  // ─── REPORTS MODULE ──────────────────────────────────────────────────────────
+// All variables are namespaced rpt_* to avoid collisions with the host app.
+ 
+let rpt_chartInstances = {};
+let rpt_volSort = { key:'last', dir:'asc' };
+let rpt_volSearch = '';
+let rpt_volProgFilter = 'all';
+let rpt_period = 'all';
+let rpt_activeWidgets = ['summary-stats','vol-hours','vol-growth','prog-breakdown','impact','engagement','top-events','retention','hours-donut','new-vols'];
+let rpt_dragSrcId = null;
+let rpt_exportFmt = 'csv';
+let rpt_data = { volunteers:[], programs:[], events:[], signups:[] };
+ 
+// ── Widget catalogue ─────────────────────────────────────────────────────────
+const RPT_WIDGETS = {
+  'summary-stats':  { label:'Summary Stats',       icon:'📊', desc:'Headline totals at a glance',             span:12 },
+  'vol-hours':      { label:'Volunteer Hours',      icon:'👥', desc:'Scrollable table with per-volunteer data', span:7  },
+  'vol-growth':     { label:'Volunteer Growth',     icon:'📈', desc:'Bar chart of new signups over time',       span:5  },
+  'prog-breakdown': { label:'Program Breakdown',    icon:'📋', desc:'Hours & volunteer count by program',       span:6  },
+  'impact':         { label:'Impact Metrics',       icon:'💛', desc:'Key figures for grant & donor reports',    span:6  },
+  'engagement':     { label:'Engagement Scores',    icon:'⭐', desc:'Most-active volunteer rankings',           span:5  },
+  'top-events':     { label:'Top Events',           icon:'🏆', desc:'Highest-attendance events this period',    span:7  },
+  'retention':      { label:'Retention Rates',      icon:'🔄', desc:'Year-over-year volunteer return rates',    span:6  },
+  'hours-donut':    { label:'Hours by Program',     icon:'🥧', desc:'Donut chart of hours across programs',     span:6  },
+  'new-vols':       { label:'New Volunteers',       icon:'✨', desc:'Recently joined volunteers',               span:6  },
+};
+ 
+// ── Entry point — call from showPage() when id==='reports' ───────────────────
+async function initReports() {
+  if (!sb || !window.TENANT?.slug) return;
+  document.getElementById('rpt-widget-grid').innerHTML =
+    '<div class="rpt-col-12" style="text-align:center;padding:3rem;color:var(--text-muted)"><div class="spinner"></div></div>';
+  await rptLoadData();
+  rptPopulateProgFilter();
+  rptRenderDashboard();
+  document.getElementById('rpt-refreshed').textContent = 'Loaded ' + new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  document.getElementById('rpt-export-to').value = new Date().toISOString().split('T')[0];
+  const y = new Date(); y.setFullYear(y.getFullYear()-1);
+  document.getElementById('rpt-export-from').value = y.toISOString().split('T')[0];
+}
+ 
+// ── Load all data scoped to this tenant ──────────────────────────────────────
+async function rptLoadData() {
+  const slug = window.TENANT.slug;
+  const [volRes, progRes, evRes] = await Promise.all([
+    sb.from('profiles')
+      .select('id, first_name, last_name, email, phone, total_hours, is_admin, created_at, volunteer_programs(program_id, programs(id,name,color))')
+      .eq('tenant_slug', slug)
+      .order('last_name'),
+    sb.from('programs')
+      .select('id, name, color, description')
+      .eq('tenant_slug', slug)
+      .order('name'),
+    sb.from('events')
+      .select('id, name, start_time, end_time, program_id, status, programs(id,name,color), event_roles(id, name, hours_credit, capacity, signups(id, volunteer_id, hours_logged, profiles(id,first_name,last_name)))')
+      .eq('tenant_slug', slug)
+      .order('start_time', {ascending:false}),
+  ]);
+  rpt_data.volunteers = volRes.data  || [];
+  rpt_data.programs   = progRes.data || [];
+  rpt_data.events     = evRes.data   || [];
+}
+ 
+// ── Populate program filter dropdown ────────────────────────────────────────
+function rptPopulateProgFilter() {
+  const sel = document.getElementById('rpt-prog-filter');
+  sel.innerHTML = '<option value="all">All Programs</option>' +
+    rpt_data.programs.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
+}
+ 
+// ── Period filter helper — returns cutoff Date or null ───────────────────────
+function rptCutoff() {
+  const d = new Date();
+  if (rpt_period==='30d') { d.setDate(d.getDate()-30); return d; }
+  if (rpt_period==='90d') { d.setDate(d.getDate()-90); return d; }
+  if (rpt_period==='ytd') { return new Date(d.getFullYear(),0,1); }
+  return null;
+}
+ 
+// ── Events visible in current period + program filter ────────────────────────
+function rptFilteredEvents() {
+  const cut = rptCutoff();
+  const prog = document.getElementById('rpt-prog-filter')?.value || 'all';
+  return rpt_data.events.filter(e => {
+    if (e.status !== 'published') return false;
+    if (prog !== 'all' && e.program_id !== prog) return false;
+    if (cut && e.start_time && new Date(e.start_time) < cut) return false;
+    return true;
+  });
+}
+ 
+// ── Derive per-volunteer hours within current filters ────────────────────────
+function rptVolHours(volId) {
+  const events = rptFilteredEvents();
+  let hours = 0;
+  events.forEach(e => {
+    e.event_roles?.forEach(r => {
+      r.signups?.forEach(s => {
+        if (s.volunteer_id === volId) {
+          hours += s.hours_logged != null ? parseFloat(s.hours_logged) : parseFloat(r.hours_credit||0);
+        }
+      });
+    });
+  });
+  return Math.round(hours * 10) / 10;
+}
+ 
+// ── Derive total all-time hours per volunteer ────────────────────────────────
+function rptTotalHours(v) { return Math.round(parseFloat(v.total_hours||0) * 10) / 10; }
+ 
+// ─── RENDER DASHBOARD ────────────────────────────────────────────────────────
+function rptRenderDashboard() {
+  rpt_chartInstances && Object.values(rpt_chartInstances).forEach(c=>{ try{c.destroy()}catch(e){} });
+  rpt_chartInstances = {};
+  const grid = document.getElementById('rpt-widget-grid');
+  grid.innerHTML = rpt_activeWidgets.map(id => rptWidgetShell(id)).join('');
+  setTimeout(rptInitCharts, 80);
+}
+ 
+function rptWidgetShell(id) {
+  const def = RPT_WIDGETS[id];
+  if (!def) return '';
+  return `<div class="rpt-widget rpt-col-${def.span}" data-wid="${id}"
+      draggable="true"
+      ondragstart="rptDragStart(event)" ondragover="rptDragOver(event)"
+      ondrop="rptDrop(event)" ondragleave="rptDragLeave(event)">
+    <div class="rpt-widget-hdr">
+      <div class="rpt-widget-title">
+        <span class="rpt-drag-handle" title="Drag to reorder">⠿</span>${def.label}
+      </div>
+      <div class="rpt-widget-ctrls">
+        ${rptWidgetControls(id)}
+        <button class="rpt-remove-btn" onclick="rptRemoveWidget('${id}')">✕ Remove</button>
+      </div>
+    </div>
+    ${rptWidgetBody(id)}
+  </div>`;
+}
+ 
+function rptWidgetControls(id) {
+  if (id==='vol-hours') return `
+    <div class="rpt-search">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="Search..." oninput="rptVolSearch(this.value)">
+    </div>
+    <select class="mini-select" onchange="rptVolProgFilter(this.value)">
+      <option value="all">All Programs</option>
+      ${rpt_data.programs.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')}
+    </select>`;
+  if (id==='vol-growth') return `
+    <div class="toggle-group">
+      <button class="toggle-btn active" onclick="rptSetGrowthMode('monthly',this)">Monthly</button>
+      <button class="toggle-btn" onclick="rptSetGrowthMode('yearly',this)">Yearly</button>
+    </div>`;
+  if (id==='prog-breakdown') return `
+    <div class="toggle-group">
+      <button class="toggle-btn active" onclick="rptSetProgView('hours',this)">Hours</button>
+      <button class="toggle-btn" onclick="rptSetProgView('vols',this)">Volunteers</button>
+    </div>`;
+  return '';
+}
+ 
+// ── Widget body builders ─────────────────────────────────────────────────────
+function rptWidgetBody(id) {
+  switch(id) {
+    case 'summary-stats':  return rptBodySummary();
+    case 'vol-hours':      return rptBodyVolHours();
+    case 'vol-growth':     return `<div class="rpt-body"><div class="rpt-chart-wrap" style="height:290px"><canvas id="rpt-chart-growth" role="img" aria-label="Bar chart of new volunteer signups over time">New volunteer signups over time.</canvas></div></div>`;
+    case 'prog-breakdown': return rptBodyProgBreakdown();
+    case 'impact':         return rptBodyImpact();
+    case 'engagement':     return rptBodyEngagement();
+    case 'top-events':     return rptBodyTopEvents();
+    case 'retention':      return rptBodyRetention();
+    case 'hours-donut':    return `<div class="rpt-body"><div class="rpt-chart-wrap" style="height:230px"><canvas id="rpt-chart-donut" role="img" aria-label="Donut chart of volunteer hours by program">Hours split by program.</canvas></div>${rptDonutLegend()}</div>`;
+    case 'new-vols':       return rptBodyNewVols();
+    default: return '<div class="rpt-body" style="color:var(--text-muted);font-size:.85rem">Loading…</div>';
+  }
+}
+ 
+function rptBodySummary() {
+  const vols = rpt_data.volunteers.filter(v=>!v.is_admin);
+  const fEvents = rptFilteredEvents();
+  const totalHours = vols.reduce((s,v)=>s+rptTotalHours(v),0);
+  const periodHours = vols.reduce((s,v)=>s+rptVolHours(v.id),0);
+  const avgHours = vols.length ? Math.round(totalHours/vols.length) : 0;
+  const progs = rpt_data.programs.length;
+  return `<div class="rpt-body">
+    <div class="rpt-stat-row">
+      ${rptStatCard('💚',vols.length,'Total Volunteers')}
+      ${rptStatCard('⏱',totalHours.toLocaleString(),'Total Hrs (All Time)')}
+      ${rptStatCard('📅',periodHours,'Hrs This Period')}
+      ${rptStatCard('🎟',fEvents.length,'Events This Period')}
+      ${rptStatCard('⭐',avgHours,'Avg Hrs / Volunteer')}
+    </div>
+  </div>`;
+}
+ 
+function rptStatCard(icon,num,lbl) {
+  return `<div class="rpt-stat"><div class="rpt-stat-icon">${icon}</div>
+    <div class="rpt-stat-num">${num}</div>
+    <div class="rpt-stat-lbl">${lbl}</div></div>`;
+}
+ 
+function rptBodyVolHours() {
+  const rows = rptGetFilteredVols().map((v,i) => {
+    const col = (rpt_data.programs[i % rpt_data.programs.length]?.color) || '#0d7377';
+    const initials = ((v.first_name||'')[0]+(v.last_name||'')[0]).toUpperCase();
+    const progs = v.volunteer_programs?.map(vp=>{
+      const c = vp.programs?.color||'#0d7377';
+      return `<span class="rpt-prog-tag" style="background:${c}1a;color:${c}">${esc(vp.programs?.name||'')}</span>`;
+    }).join('')||'—';
+    const total = rptTotalHours(v);
+    const period = rptVolHours(v.id);
+    return `<tr onclick="rptOpenVolDetail('${v.id}')">
+      <td><div style="display:flex;align-items:center;gap:.55rem">
+        <div class="rpt-v-avatar" style="background:${col}1a;color:${col}">${initials}</div>
+        <span style="font-weight:700">${esc(v.first_name)} ${esc(v.last_name||'')}</span>
+      </div></td>
+      <td><span class="rpt-h-badge" style="background:var(--teal-pale);color:var(--teal-dark)">${total}h</span></td>
+      <td><span class="rpt-h-badge" style="background:#fef3c7;color:#92400e">${period}h</span></td>
+      <td>${progs}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="event.stopPropagation();rptRemoveVol('${v.id}','${esc(v.first_name)} ${esc(v.last_name||'')}')">Remove</button></td>
+    </tr>`;
+  }).join('');
+  const sortTh = (k,lbl) => `<th class="${rpt_volSort.key===k?'rpt-sorted':''}" onclick="rptSortVols('${k}')">${lbl} <span style="opacity:.5">${rpt_volSort.key===k?(rpt_volSort.dir==='asc'?'↑':'↓'):'↕'}</span></th>`;
+  return `<div class="rpt-body-flush">
+    <div class="rpt-tbl-scroll">
+      <table>
+        <thead><tr>
+          ${sortTh('last','Volunteer')}
+          ${sortTh('total','Total Hrs')}
+          ${sortTh('period','This Period')}
+          <th>Programs</th><th></th>
+        </tr></thead>
+        <tbody id="rpt-vol-tbody">${rows||'<tr><td colspan="5" style="text-align:center;padding:1.5rem;color:var(--text-muted)">No volunteers found.</td></tr>'}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+ 
+function rptGetFilteredVols() {
+  let vols = rpt_data.volunteers.filter(v=>!v.is_admin);
+  if (rpt_volSearch) vols = vols.filter(v=>(v.first_name+' '+v.last_name).toLowerCase().includes(rpt_volSearch.toLowerCase()));
+  if (rpt_volProgFilter !== 'all') vols = vols.filter(v=>v.volunteer_programs?.some(vp=>vp.program_id===rpt_volProgFilter));
+  const k = rpt_volSort.key;
+  vols.sort((a,b)=>{
+    let av, bv;
+    if (k==='last')   { av=a.last_name||'';  bv=b.last_name||''; return rpt_volSort.dir==='asc'?av.localeCompare(bv):bv.localeCompare(av); }
+    if (k==='total')  { av=rptTotalHours(a); bv=rptTotalHours(b); }
+    else              { av=rptVolHours(a.id); bv=rptVolHours(b.id); }
+    return rpt_volSort.dir==='asc'?av-bv:bv-av;
+  });
+  return vols;
+}
+ 
+function rptBodyProgBreakdown() {
+  // Compute hours and volunteer counts per program from real data
+  const fEvents = rptFilteredEvents();
+  const progStats = rpt_data.programs.map(p => {
+    const pEvents = fEvents.filter(e=>e.program_id===p.id);
+    let hours = 0, volSet = new Set();
+    pEvents.forEach(e=>{
+      e.event_roles?.forEach(r=>{
+        r.signups?.forEach(s=>{
+          hours += s.hours_logged!=null?parseFloat(s.hours_logged):parseFloat(r.hours_credit||0);
+          volSet.add(s.volunteer_id);
+        });
+      });
+    });
+    return {...p, hours:Math.round(hours), vols:volSet.size, events:pEvents.length};
+  }).filter(p=>p.hours>0||p.vols>0);
+  const maxH = Math.max(...progStats.map(p=>p.hours), 1);
+  const rows = progStats.map(p=>`
+    <div style="margin-bottom:.8rem">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.25rem">
+        <div style="display:flex;align-items:center;gap:.45rem">
+          <div style="width:9px;height:9px;border-radius:50%;background:${p.color||'var(--teal)'};flex-shrink:0"></div>
+          <span style="font-weight:700;font-size:.83rem">${esc(p.name)}</span>
+        </div>
+        <span class="rpt-h-badge" id="rpt-pb-val-${p.id}" style="background:${p.color||'#0d7377'}1a;color:${p.color||'var(--teal-dark)'}">
+          ${p.hours}h &nbsp;·&nbsp; ${p.vols} vols
+        </span>
+      </div>
+      <div style="height:7px;background:var(--border-light);border-radius:4px;overflow:hidden">
+        <div id="rpt-pb-bar-${p.id}" style="height:100%;border-radius:4px;background:${p.color||'var(--teal)'};width:${Math.round(p.hours/maxH*100)}%;transition:width .4s"></div>
+      </div>
+    </div>`).join('') || '<div style="color:var(--text-muted);font-size:.85rem">No data for this period.</div>';
+  // Store for toggle
+  window._rptProgStats = progStats;
+  window._rptProgMaxH  = maxH;
+  return `<div class="rpt-body">${rows}</div>`;
+}
+ 
+function rptBodyImpact() {
+  const fEvents = rptFilteredEvents();
+  let totalHours = 0, volSet = new Set(), signupCount = 0;
+  fEvents.forEach(e=>{
+    e.event_roles?.forEach(r=>{
+      r.signups?.forEach(s=>{
+        totalHours += s.hours_logged!=null?parseFloat(s.hours_logged):parseFloat(r.hours_credit||0);
+        volSet.add(s.volunteer_id);
+        signupCount++;
+      });
+    });
+  });
+  const avgPerEvent = fEvents.length ? Math.round(signupCount/fEvents.length*10)/10 : 0;
+  const accentA = 'var(--coral-pale)', accentB = 'var(--purple-pale)', accentC = '#fef3c7', accentD = '#d1fae5';
+  return `<div class="rpt-body">
+    <div class="rpt-impact-grid">
+      <div class="rpt-impact-card"><span class="rpt-impact-icon">⏱</span><div>
+        <div class="rpt-impact-num">${Math.round(totalHours).toLocaleString()}</div>
+        <div class="rpt-impact-lbl">Volunteer Hours</div></div></div>
+      <div class="rpt-impact-card" style="background:${accentA}"><span class="rpt-impact-icon">👤</span><div>
+        <div class="rpt-impact-num" style="color:var(--coral)">${volSet.size}</div>
+        <div class="rpt-impact-lbl">Unique Volunteers</div></div></div>
+      <div class="rpt-impact-card" style="background:${accentB}"><span class="rpt-impact-icon">🎟</span><div>
+        <div class="rpt-impact-num" style="color:#7c3aed">${fEvents.length}</div>
+        <div class="rpt-impact-lbl">Events This Period</div></div></div>
+      <div class="rpt-impact-card" style="background:${accentC}"><span class="rpt-impact-icon">📋</span><div>
+        <div class="rpt-impact-num" style="color:#92400e">${rpt_data.programs.length}</div>
+        <div class="rpt-impact-lbl">Active Programs</div></div></div>
+      <div class="rpt-impact-card" style="background:${accentD}"><span class="rpt-impact-icon">✅</span><div>
+        <div class="rpt-impact-num" style="color:#065f46">${signupCount}</div>
+        <div class="rpt-impact-lbl">Total Signups</div></div></div>
+      <div class="rpt-impact-card"><span class="rpt-impact-icon">📐</span><div>
+        <div class="rpt-impact-num">${avgPerEvent}</div>
+        <div class="rpt-impact-lbl">Avg Vols per Event</div></div></div>
+    </div>
+    <p style="font-size:.7rem;color:var(--text-light);margin-top:.65rem;text-align:center">Ideal for grant reports &amp; donor outreach</p>
+  </div>`;
+}
+ 
+function rptBodyEngagement() {
+  const vols = rpt_data.volunteers.filter(v=>!v.is_admin);
+  const fEvents = rptFilteredEvents();
+  const scored = vols.map(v=>{
+    let evCount=0;
+    fEvents.forEach(e=>{
+      const signed = e.event_roles?.some(r=>r.signups?.some(s=>s.volunteer_id===v.id));
+      if(signed) evCount++;
+    });
+    const hrs = rptVolHours(v.id);
+    const progs = v.volunteer_programs?.length||0;
+    const score = Math.min(100, Math.round(hrs*1.2 + evCount*4 + progs*6));
+    return {...v, _score:score, _events:evCount};
+  }).sort((a,b)=>b._score-a._score).slice(0,8);
+  return `<div class="rpt-body" style="padding:.9rem 1.1rem">
+    <p style="font-size:.72rem;color:var(--text-muted);margin-bottom:.8rem">Score = hours × 1.2 + events × 4 + programs × 6</p>
+    ${scored.map((v,i)=>{
+      const col = rpt_data.programs[i % Math.max(rpt_data.programs.length,1)]?.color||'var(--teal)';
+      return `<div class="rpt-eng-row">
+        <span style="font-weight:700;width:115px;flex-shrink:0;font-size:.82rem">${esc(v.first_name)} ${esc(v.last_name||'')}</span>
+        <div class="rpt-eng-bar-wrap"><div class="rpt-eng-bar" style="width:${v._score}%;background:${col}"></div></div>
+        <span style="font-size:.75rem;font-weight:800;color:var(--text);width:28px;text-align:right">${v._score}</span>
+      </div>`;
+    }).join('') || '<div style="color:var(--text-muted);font-size:.85rem">No data yet.</div>'}
+  </div>`;
+}
+ 
+function rptBodyTopEvents() {
+  const fEvents = rptFilteredEvents();
+  const withCounts = fEvents.map(e=>{
+    const volSet = new Set();
+    let hours = 0;
+    e.event_roles?.forEach(r=>{
+      r.signups?.forEach(s=>{
+        volSet.add(s.volunteer_id);
+        hours += s.hours_logged!=null?parseFloat(s.hours_logged):parseFloat(r.hours_credit||0);
+      });
+    });
+    return {...e, _vols:volSet.size, _hours:Math.round(hours)};
+  }).filter(e=>e._vols>0).sort((a,b)=>b._vols-a._vols).slice(0,6);
+  return `<div class="rpt-body-flush">
+    <table>
+      <thead><tr><th>Event</th><th>Program</th><th>Volunteers</th><th>Hours</th></tr></thead>
+      <tbody>
+        ${withCounts.map(e=>{
+          const c = e.programs?.color||'var(--teal)';
+          return `<tr>
+            <td style="font-weight:700;font-size:.83rem">${esc(e.name)}</td>
+            <td><span style="background:${c}1a;color:${c};padding:.12rem .45rem;border-radius:20px;font-size:.7rem;font-weight:800">${esc(e.programs?.name||'—')}</span></td>
+            <td style="font-size:.83rem">${e._vols}</td>
+            <td><span class="rpt-h-badge" style="background:var(--teal-pale);color:var(--teal-dark)">${e._hours}h</span></td>
+          </tr>`;
+        }).join('') || '<tr><td colspan="4" style="padding:1.5rem;text-align:center;color:var(--text-muted)">No events with signups this period.</td></tr>'}
+      </tbody>
+    </table>
+  </div>`;
+}
+ 
+function rptBodyRetention() {
+  // Derive retention: for each year, what % of that year's volunteers came back next year
+  const volsByYear = {};
+  rpt_data.volunteers.filter(v=>!v.is_admin).forEach(v=>{
+    if (!v.created_at) return;
+    const yr = new Date(v.created_at).getFullYear();
+    if (!volsByYear[yr]) volsByYear[yr] = new Set();
+    volsByYear[yr].add(v.id);
+  });
+  const years = Object.keys(volsByYear).sort();
+  const retention = years.slice(0,-1).map(yr=>{
+    const nextYr = String(Number(yr)+1);
+    const base = volsByYear[yr];
+    const next = volsByYear[nextYr];
+    if (!next || !base.size) return null;
+    const returned = [...base].filter(id=>next.has(id)).length;
+    return { year:yr, pct: Math.round(returned/base.size*100) };
+  }).filter(Boolean);
+  const latest = retention[retention.length-1]?.pct;
+  const trend  = retention.length>=2 ? retention[retention.length-1].pct - retention[0].pct : null;
+  return `<div class="rpt-body">
+    <p style="font-size:.76rem;color:var(--text-muted);margin-bottom:.9rem">% of volunteers who returned the following year.</p>
+    ${retention.length ? retention.map(r=>`<div class="rpt-ret-bar">
+      <span class="rpt-ret-label">${r.year}</span>
+      <div class="rpt-ret-track"><div class="rpt-ret-fill" style="width:${r.pct}%"></div></div>
+      <span class="rpt-ret-val">${r.pct}%</span>
+    </div>`).join('') : '<div style="color:var(--text-muted);font-size:.83rem">Not enough year-over-year data yet.</div>'}
+    ${latest!=null?`<div style="margin-top:.85rem;padding:.8rem;background:var(--teal-pale);border-radius:var(--radius-sm)">
+      <div style="font-size:.72rem;font-weight:800;color:var(--text-muted)">Latest retention</div>
+      <div style="font-size:.85rem;color:var(--teal-dark);font-weight:800;margin-top:.2rem">${latest}% retention${trend!=null?' — '+(trend>=0?'+':'')+trend+'% since '+years[0]:''}. Nonprofit avg ≈ 65%.</div>
+    </div>`:''}
+  </div>`;
+}
+ 
+function rptDonutLegend() {
+  return `<div style="display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.65rem;justify-content:center">
+    ${rpt_data.programs.map(p=>`<span style="display:flex;align-items:center;gap:.3rem;font-size:.72rem;font-weight:700;color:var(--text-muted)"><span style="width:9px;height:9px;border-radius:2px;background:${p.color||'var(--teal)'}"></span>${esc(p.name)}</span>`).join('')}
+  </div>`;
+}
+ 
+function rptBodyNewVols() {
+  const cut = new Date(); cut.setDate(cut.getDate()-60);
+  const recent = rpt_data.volunteers.filter(v=>!v.is_admin && v.created_at && new Date(v.created_at)>cut)
+    .sort((a,b)=>b.created_at.localeCompare(a.created_at));
+  if (!recent.length) return '<div class="rpt-body" style="color:var(--text-muted);font-size:.85rem">No new volunteers in the last 60 days.</div>';
+  return `<div class="rpt-body-flush">
+    ${recent.map((v,i)=>{
+      const col = rpt_data.programs[i%Math.max(rpt_data.programs.length,1)]?.color||'var(--teal)';
+      const progs = v.volunteer_programs?.map(vp=>esc(vp.programs?.name||'')).filter(Boolean).join(', ')||'No program assigned';
+      return `<div style="display:flex;align-items:center;gap:.7rem;padding:.65rem 1.1rem;border-bottom:1px solid var(--border-light)">
+        <div class="rpt-v-avatar" style="background:${col}1a;color:${col};width:32px;height:32px;font-size:.68rem">${((v.first_name||'')[0]+(v.last_name||'')[0]).toUpperCase()}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:.88rem">${esc(v.first_name)} ${esc(v.last_name||'')}</div>
+          <div style="font-size:.73rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${progs}</div>
+        </div>
+        <div style="font-size:.73rem;color:var(--text-muted);flex-shrink:0">${fmtDate(v.created_at)}</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+ 
+// ─── CHARTS ───────────────────────────────────────────────────────────────────
+function rptInitCharts() {
+  if (rpt_activeWidgets.includes('vol-growth')) rptInitGrowthChart('monthly');
+  if (rpt_activeWidgets.includes('hours-donut')) rptInitDonutChart();
+}
+ 
+function rptGrowthData(mode) {
+  // Build real monthly/yearly new-volunteer counts from profiles.created_at
+  const vols = rpt_data.volunteers.filter(v=>!v.is_admin && v.created_at);
+  if (mode==='yearly') {
+    const byYear = {};
+    vols.forEach(v=>{ const yr=String(new Date(v.created_at).getFullYear()); byYear[yr]=(byYear[yr]||0)+1; });
+    const keys = Object.keys(byYear).sort();
+    return { labels:keys, data:keys.map(k=>byYear[k]) };
+  }
+  // monthly — last 12 months
+  const months=[]; const data=[];
+  const now = new Date();
+  for(let i=11;i>=0;i--){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    const key=d.toLocaleDateString('en-US',{month:'short',year:'2-digit'});
+    months.push(key);
+    data.push(vols.filter(v=>{const c=new Date(v.created_at);return c.getFullYear()===d.getFullYear()&&c.getMonth()===d.getMonth();}).length);
+  }
+  return { labels:months, data };
+}
+ 
+function rptInitGrowthChart(mode) {
+  const canvas = document.getElementById('rpt-chart-growth');
+  if (!canvas) return;
+  const d = rptGrowthData(mode);
+  // Get computed teal color from CSS var (fallback for Chart.js which can't read CSS vars)
+  const teal = getComputedStyle(document.documentElement).getPropertyValue('--teal').trim() || '#0d7377';
+  const tealPale = getComputedStyle(document.documentElement).getPropertyValue('--teal-pale').trim() || '#e8f7f7';
+  rpt_chartInstances['growth'] = new Chart(canvas, {
+    type:'bar',
+    data:{ labels:d.labels, datasets:[{
+      label:'New Volunteers', data:d.data,
+      backgroundColor:teal+'88', borderColor:teal, borderWidth:2, borderRadius:5
+    }]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw} new volunteer${ctx.raw!==1?'s':''}`}}},
+      scales:{y:{beginAtZero:true,ticks:{stepSize:1,precision:0},grid:{color:tealPale}},x:{grid:{display:false},ticks:{autoSkip:false,maxRotation:45}}}}
+  });
+}
+ 
+function rptInitDonutChart() {
+  const canvas = document.getElementById('rpt-chart-donut');
+  if (!canvas) return;
+  const fEvents = rptFilteredEvents();
+  const data = rpt_data.programs.map(p=>{
+    let h=0;
+    fEvents.filter(e=>e.program_id===p.id).forEach(e=>{
+      e.event_roles?.forEach(r=>r.signups?.forEach(s=>{h+=s.hours_logged!=null?parseFloat(s.hours_logged):parseFloat(r.hours_credit||0);}));
+    });
+    return {name:p.name,color:p.color||'#0d7377',hours:Math.round(h)};
+  }).filter(p=>p.hours>0);
+  if (!data.length) { canvas.closest('.rpt-body').innerHTML += '<p style="text-align:center;color:var(--text-muted);font-size:.85rem;margin-top:.5rem">No hours logged this period.</p>'; return; }
+  const total = data.reduce((s,p)=>s+p.hours,0);
+  rpt_chartInstances['donut'] = new Chart(canvas, {
+    type:'doughnut',
+    data:{labels:data.map(p=>p.name),datasets:[{data:data.map(p=>p.hours),backgroundColor:data.map(p=>p.color),borderWidth:3,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw}h (${Math.round(ctx.raw/total*100)}%)`}}}}
+  });
+}
+ 
+// ─── INTERACTIONS ─────────────────────────────────────────────────────────────
+function rptSortVols(key) {
+  if (rpt_volSort.key===key) rpt_volSort.dir=rpt_volSort.dir==='asc'?'desc':'asc';
+  else { rpt_volSort.key=key; rpt_volSort.dir=key==='last'?'asc':'desc'; }
+  rptRefreshVolTable();
+}
+function rptVolSearch(val) { rpt_volSearch=val; rptRefreshVolTable(); }
+function rptVolProgFilter(val) { rpt_volProgFilter=val; rptRefreshVolTable(); }
+ 
+function rptRefreshVolTable() {
+  const tbody = document.getElementById('rpt-vol-tbody');
+  if (!tbody) return;
+  const widget = document.querySelector('[data-wid="vol-hours"]');
+  if (widget) {
+    const newBody = rptBodyVolHours();
+    const tmp = document.createElement('div'); tmp.innerHTML = newBody;
+    widget.querySelector('.rpt-body-flush').replaceWith(tmp.firstChild);
+  }
+}
+ 
+function rptSetGrowthMode(mode, btn) {
+  btn.closest('.toggle-group').querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const chart = rpt_chartInstances['growth'];
+  if (!chart) return;
+  const d = rptGrowthData(mode);
+  chart.data.labels = d.labels;
+  chart.data.datasets[0].data = d.data;
+  chart.update();
+}
+ 
+function rptSetProgView(mode, btn) {
+  btn.closest('.toggle-group').querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const stats = window._rptProgStats || [];
+  const maxH = window._rptProgMaxH || 1;
+  stats.forEach(p => {
+    const bar = document.getElementById('rpt-pb-bar-'+p.id);
+    const val = document.getElementById('rpt-pb-val-'+p.id);
+    if (!bar||!val) return;
+    if (mode==='hours') {
+      bar.style.width = Math.round(p.hours/maxH*100)+'%';
+      val.textContent = p.hours+'h · '+p.vols+' vols';
+    } else {
+      const maxV = Math.max(...stats.map(x=>x.vols),1);
+      bar.style.width = Math.round(p.vols/maxV*100)+'%';
+      val.textContent = p.vols+' volunteers';
+    }
+  });
+}
+ 
+function rptSetPeriod(p, btn) {
+  rpt_period = p;
+  document.querySelectorAll('#rpt-period-grp .toggle-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  rptRenderDashboard();
+}
+ 
+function rptApplyFilters() { rptRenderDashboard(); }
+ 
+// ─── VOL DETAIL MODAL ─────────────────────────────────────────────────────────
+function rptOpenVolDetail(id) {
+  const v = rpt_data.volunteers.find(x=>x.id===id);
+  if (!v) return;
+  const idx = rpt_data.volunteers.indexOf(v);
+  const col = rpt_data.programs[idx % Math.max(rpt_data.programs.length,1)]?.color || 'var(--teal)';
+  const initials = ((v.first_name||'')[0]+(v.last_name||'')[0]).toUpperCase();
+  const totalH = rptTotalHours(v);
+  const periodH = rptVolHours(id);
+ 
+  // Compute per-program hours for pie chart
+  const progHours = rpt_data.programs.map(p=>{
+    let h=0;
+    rpt_data.events.forEach(e=>{
+      if(e.program_id!==p.id) return;
+      e.event_roles?.forEach(r=>r.signups?.filter(s=>s.volunteer_id===id).forEach(s=>{
+        h+=s.hours_logged!=null?parseFloat(s.hours_logged):parseFloat(r.hours_credit||0);
+      }));
+    });
+    return {...p, hours:Math.round(h)};
+  }).filter(p=>p.hours>0);
+ 
+  // Signed-up events (most recent 5)
+  const signedEvents = rpt_data.events.filter(e=>
+    e.event_roles?.some(r=>r.signups?.some(s=>s.volunteer_id===id))
+  ).sort((a,b)=>b.start_time?.localeCompare(a.start_time||'')||0);
+  const recentFive = signedEvents.slice(0,5);
+  const extra = signedEvents.slice(5);
+  const evCount = signedEvents.length;
+ 
+  const pieId = 'rpt-pie-'+id;
+  document.getElementById('rpt-vol-modal-content').innerHTML = `
+    <div class="rpt-vd-hdr">
+      <div class="rpt-vd-avatar" style="background:${col}1a;color:${col}">${initials}</div>
+      <div>
+        <div style="font-size:1.1rem;font-weight:800;font-family:var(--font-body);color:var(--text)">${esc(v.first_name)} ${esc(v.last_name||'')}</div>
+        <div style="font-size:.8rem;color:var(--text-muted);margin-top:.15rem">${esc(v.email||'')}${v.created_at?' · Joined '+fmtDate(v.created_at):''}</div>
+      </div>
+    </div>
+    <div class="rpt-vd-stats">
+      <div class="rpt-vds"><div class="rpt-vds-num">${totalH}</div><div class="rpt-vds-lbl">Total Hrs</div></div>
+      <div class="rpt-vds"><div class="rpt-vds-num" style="color:#92400e">${periodH}</div><div class="rpt-vds-lbl">This Period</div></div>
+      <div class="rpt-vds"><div class="rpt-vds-num">${evCount}</div><div class="rpt-vds-lbl">Events</div></div>
+    </div>
+    ${progHours.length?`
+    <div style="font-size:.72rem;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem">Hours by Program</div>
+    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.1rem">
+      <div style="position:relative;width:100px;height:100px;flex-shrink:0">
+        <canvas id="${pieId}" role="img" aria-label="Pie chart for ${esc(v.first_name)}"></canvas>
+      </div>
+      <div>${progHours.map(ph=>`<div style="display:flex;align-items:center;gap:.45rem;margin-bottom:.3rem">
+        <div style="width:9px;height:9px;border-radius:50%;background:${ph.color||'var(--teal)'};flex-shrink:0"></div>
+        <span style="font-size:.8rem;font-weight:700">${esc(ph.name)}</span>
+        <span class="rpt-h-badge" style="background:${ph.color||'#0d7377'}1a;color:${ph.color||'var(--teal-dark)'}">${ph.hours}h</span>
+      </div>`).join('')}</div>
+    </div>`:''}
+    <div style="font-size:.72rem;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem">Recent Events</div>
+    <div id="rpt-vol-events-list">
+      ${recentFive.map(e=>`<div class="rpt-evt-row">
+        <div style="width:8px;height:8px;border-radius:50%;background:${e.programs?.color||'var(--teal)'};flex-shrink:0"></div>
+        <div style="flex:1;min-width:0">
+          <span style="font-weight:700">${esc(e.name)}</span>
+          ${e.start_time?`<span style="color:var(--text-muted);font-size:.75rem;margin-left:.4rem">${fmtDate(e.start_time)}</span>`:''}
+        </div>
+      </div>`).join('')}
+    </div>
+    ${extra.length?`<button class="btn btn-ghost btn-sm" style="width:100%;margin-top:.4rem;color:var(--teal)" id="rpt-show-more-btn" onclick="rptShowMoreEvents('${id}')">＋ See all ${evCount} events</button>`:''}
+  `;
+  openModal('rpt-vol-modal');
+  if (progHours.length) setTimeout(()=>{
+    const canvas = document.getElementById(pieId);
+    if (!canvas) return;
+    new Chart(canvas,{
+      type:'doughnut',
+      data:{labels:progHours.map(p=>p.name),datasets:[{data:progHours.map(p=>p.hours),backgroundColor:progHours.map(p=>p.color||'#0d7377'),borderWidth:2,borderColor:'#fff'}]},
+      options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw}h`}}}}
+    });
+  },80);
+}
+ 
+function rptShowMoreEvents(id) {
+  const v = rpt_data.volunteers.find(x=>x.id===id);
+  if (!v) return;
+  const allEvs = rpt_data.events.filter(e=>
+    e.event_roles?.some(r=>r.signups?.some(s=>s.volunteer_id===id))
+  ).sort((a,b)=>b.start_time?.localeCompare(a.start_time||'')||0);
+  document.getElementById('rpt-vol-events-list').innerHTML = allEvs.map(e=>`
+    <div class="rpt-evt-row">
+      <div style="width:8px;height:8px;border-radius:50%;background:${e.programs?.color||'var(--teal)'};flex-shrink:0"></div>
+      <div style="flex:1;min-width:0">
+        <span style="font-weight:700">${esc(e.name)}</span>
+        ${e.start_time?`<span style="color:var(--text-muted);font-size:.75rem;margin-left:.4rem">${fmtDate(e.start_time)}</span>`:''}
+      </div>
+    </div>`).join('');
+  const btn = document.getElementById('rpt-show-more-btn');
+  if (btn) btn.remove();
+}
+ 
+async function rptRemoveVol(id, name) {
+  if (!confirm(`Remove ${name} from the system? This cannot be undone.`)) return;
+  setLoading(true);
+  // Delete signups, volunteer_programs, then profile
+  await sb.from('signups').delete().eq('volunteer_id', id);
+  await sb.from('volunteer_programs').delete().eq('volunteer_id', id);
+  const { error } = await sb.from('profiles').delete().eq('id', id);
+  setLoading(false);
+  if (error) { toast(error.message, true); return; }
+  toast(`${name} removed.`);
+  await initReports();
+}
+ 
+// ─── WIDGET MANAGEMENT ────────────────────────────────────────────────────────
+function rptRemoveWidget(id) {
+  rpt_activeWidgets = rpt_activeWidgets.filter(w=>w!==id);
+  rptRenderDashboard();
+  rptRenderAddPanel();
+  toast('Widget removed. Re-add it from the ＋ panel.');
+}
+ 
+function rptToggleAddPanel() {
+  const panel = document.getElementById('rpt-add-panel');
+  const visible = panel.style.display!=='none';
+  panel.style.display = visible ? 'none' : 'block';
+  document.getElementById('rpt-toggle-add-btn').textContent = visible ? '＋ Add Widget' : '✕ Close';
+  if (!visible) rptRenderAddPanel();
+}
+ 
+function rptRenderAddPanel() {
+  const available = Object.entries(RPT_WIDGETS).filter(([id])=>!rpt_activeWidgets.includes(id));
+  const panel = document.getElementById('rpt-add-panel');
+  if (!available.length) {
+    panel.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:.88rem;padding:1rem">All widgets are already on your dashboard.</div>';
+    return;
+  }
+  panel.innerHTML = `<div class="rpt-add-panel">${available.map(([id,def])=>`
+    <div class="rpt-aw-card" onclick="rptAddWidget('${id}')">
+      <div class="rpt-aw-icon">${def.icon}</div>
+      <h4>${def.label}</h4>
+      <p>${def.desc}</p>
+    </div>`).join('')}</div>`;
+}
+ 
+function rptAddWidget(id) {
+  if (!rpt_activeWidgets.includes(id)) rpt_activeWidgets.push(id);
+  rptRenderDashboard();
+  rptRenderAddPanel();
+  toast('Widget added!');
+}
+ 
+// ─── DRAG & DROP ─────────────────────────────────────────────────────────────
+function rptDragStart(e) {
+  rpt_dragSrcId = e.currentTarget.dataset.wid;
+  e.currentTarget.classList.add('rpt-dragging');
+  e.dataTransfer.effectAllowed='move';
+}
+function rptDragOver(e) {
+  e.preventDefault(); e.dataTransfer.dropEffect='move';
+  e.currentTarget.classList.add('rpt-drag-over');
+}
+function rptDragLeave(e) { e.currentTarget.classList.remove('rpt-drag-over'); }
+function rptDrop(e) {
+  e.preventDefault();
+  const targetId = e.currentTarget.dataset.wid;
+  e.currentTarget.classList.remove('rpt-drag-over');
+  if (!rpt_dragSrcId||rpt_dragSrcId===targetId) return;
+  const from=rpt_activeWidgets.indexOf(rpt_dragSrcId), to=rpt_activeWidgets.indexOf(targetId);
+  if(from>=0&&to>=0){ rpt_activeWidgets.splice(from,1); rpt_activeWidgets.splice(to,0,rpt_dragSrcId); }
+  rptRenderDashboard();
+}
+ 
+// ─── EXPORT ───────────────────────────────────────────────────────────────────
+function rptSetExportFmt(fmt,btn) {
+  rpt_exportFmt=fmt;
+  document.querySelectorAll('.rpt-fmt-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+ 
+function rptRunExport() {
+  const title = document.getElementById('rpt-export-title').value || (window.TENANT?.orgName||'Volunteer') + ' Impact Report';
+  const from  = document.getElementById('rpt-export-from').value;
+  const to    = document.getElementById('rpt-export-to').value;
+  const sections = Array.from(document.querySelectorAll('#rpt-export-sections input:checked')).map(i=>i.value);
+  const slug  = window.TENANT?.slug || 'export';
+  const vols  = rpt_data.volunteers.filter(v=>!v.is_admin);
+ 
+  if (rpt_exportFmt==='json') {
+    const obj = { title, period:{from,to}, tenant:slug, generated:new Date().toISOString(),
+      summary:sections.includes('summary')?{ totalVolunteers:vols.length, totalHours:vols.reduce((s,v)=>s+rptTotalHours(v),0) }:undefined,
+      volunteers:sections.includes('volunteers')?vols.map(v=>({ name:`${v.first_name} ${v.last_name}`,email:v.email,totalHours:rptTotalHours(v),periodHours:rptVolHours(v.id),programs:v.volunteer_programs?.map(vp=>vp.programs?.name).filter(Boolean) })):undefined,
+      programs:sections.includes('programs')?window._rptProgStats:undefined,
+    };
+    const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});
+    rptDownload(blob, slug+'-report-'+from+'.json');
+  } else if (rpt_exportFmt==='pdf') {
+    window.print(); // In production this would trigger a server-side PDF
+  } else {
+    // CSV
+    let csv = `"${title}"\n"Tenant: ${slug}"\n"Period: ${from} to ${to}"\n"Generated: ${new Date().toLocaleDateString()}"\n\n`;
+    if (sections.includes('summary')) {
+      csv += '"SUMMARY"\n"Metric","Value"\n';
+      csv += `"Total Volunteers","${vols.length}"\n"Total Hours (All Time)","${vols.reduce((s,v)=>s+rptTotalHours(v),0)}"\n"Events This Period","${rptFilteredEvents().length}"\n"Active Programs","${rpt_data.programs.length}"\n\n`;
+    }
+    if (sections.includes('volunteers')) {
+      csv += '"VOLUNTEER HOURS"\n"Name","Email","Total Hours","Period Hours","Programs","Events Attended"\n';
+      csv += vols.map(v=>`"${v.first_name} ${v.last_name}","${v.email||''}","${rptTotalHours(v)}","${rptVolHours(v.id)}","${v.volunteer_programs?.map(vp=>vp.programs?.name).filter(Boolean).join('; ')||''}","${rpt_data.events.filter(e=>e.event_roles?.some(r=>r.signups?.some(s=>s.volunteer_id===v.id))).length}"`).join('\n')+'\n\n';
+    }
+    if (sections.includes('programs') && window._rptProgStats) {
+      csv += '"PROGRAM BREAKDOWN"\n"Program","Hours","Volunteers","Events"\n';
+      csv += window._rptProgStats.map(p=>`"${p.name}","${p.hours}","${p.vols}","${p.events}"`).join('\n')+'\n\n';
+    }
+    if (sections.includes('events')) {
+      const fev = rptFilteredEvents();
+      csv += '"TOP EVENTS"\n"Event","Program","Volunteers","Hours"\n';
+      const evRows = fev.map(e=>{
+        const vs=new Set(); let h=0;
+        e.event_roles?.forEach(r=>r.signups?.forEach(s=>{vs.add(s.volunteer_id);h+=s.hours_logged!=null?parseFloat(s.hours_logged):parseFloat(r.hours_credit||0);}));
+        return `"${e.name}","${e.programs?.name||''}","${vs.size}","${Math.round(h)}"`;
+      }).join('\n');
+      csv += evRows+'\n\n';
+    }
+    const blob=new Blob([csv],{type:'text/csv'});
+    rptDownload(blob, slug+'-report-'+from+'.csv');
+  }
+  closeModal('rpt-export-modal');
+  toast('Report downloaded! 📄');
+}
+ 
+function rptDownload(blob, filename) {
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=filename; a.click();
+  URL.revokeObjectURL(url);
+}
+// ─── END REPORTS MODULE ───────────────────────────────────────────────────────
 </script>
 </body>
 </html>
