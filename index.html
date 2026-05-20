@@ -700,8 +700,7 @@ async function handleRegister() {
   }
 
   setLoading(false);
-  showAuthMsg('Account created! Please check your email to confirm, then sign in.', 'success');
-}
+await initApp(data.user);}
 async function handleLogout() {
   await sb.auth.signOut();
   currentUser = null; currentProfile = null;
