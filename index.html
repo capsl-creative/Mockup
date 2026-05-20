@@ -1439,6 +1439,7 @@ function showScreen(id) {
 }
 function showPage(id) {
   // Warn if navigating away from event editor with unsaved changes
+  if (id === 'reports') initReports();
   if (id !== 'create-event' && editorDirty && document.getElementById('page-create-event')?.classList.contains('active')) {
     if (!confirm('You have unsaved changes. Leave without saving?')) return;
     editorDirty = false;
