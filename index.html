@@ -682,15 +682,21 @@ async function handleRegister() {
   // in case the DB trigger that auto-creates profiles isn't reading
   // raw_user_meta_data.tenant_slug (which caused null slugs in the bug).
   // Uses upsert so it's a no-op if the trigger already did the right thing.
-  if (data?.user?.id && window.TENANT?.slug) {
-    await sb.from('profiles').upsert({
+  const slug = window.TENANT?.slug;
+  console.log('Registering with slug:', slug, '| user id:', data?.user?.id);
+
+  if (data?.user?.id) {
+    const { error: upsertError } = await sb.from('profiles').upsert({
       id:          data.user.id,
       first_name:  first,
       last_name:   last,
       phone:       phone || null,
       email:       email,
-      tenant_slug: window.TENANT.slug,
+      tenant_slug: slug ?? null,
     }, { onConflict: 'id' });
+
+    if (upsertError) console.error('Profile upsert failed:', upsertError.message);
+    else console.log('Profile upsert succeeded with slug:', slug);
   }
 
   setLoading(false);
