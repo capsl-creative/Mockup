@@ -2381,7 +2381,7 @@ function rptOpenVolDetail(id) {
  <div class="rpt-vd-hdr">
  <div class="rpt-vd-avatar" style="background:${col}1a;color:${col}">${initials}</div>
  <div>
- <div style="font-size:1.1rem;font-weight:800;color:var(--text)">${esc(v.first_name)} ${esc(v.last_name||'')</div>
+ <div style="font-size:1.1rem;font-weight:800;color:var(--text)">${esc(v.first_name)} ${esc(v.last_name||'')}</div>
  <div style="font-size:.8rem;color:var(--text-muted);margin-top:.15rem">${esc(v.email||'')}${v.created_at?' · Joined '+fmtDate(v.created_at):''}</div>
  </div>
  </div>
