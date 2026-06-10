@@ -1088,29 +1088,15 @@ async function publishEvent(id) {
 }
 
 async function deleteEvent(id) {
- if (!confirm('Are you sure you want to delete this event? This cannot be undone.')) return;
- setLoading(true);
- // Deduct hours for each signup before deleting (trigger only fires on direct DELETE rows)
- const ev = allEvents.find(e=>e.id===id);
- if (ev?.event_roles) {
- for (const role of ev.event_roles) {
- if (role.signups?.length && role.hours_credit) {
- for (const su of role.signups) {
- const { data: prof } = await sb.from('profiles').select('total_hours').eq('id', su.volunteer_id).single();
- if (prof) {
- await sb.from('profiles').update({ total_hours: Math.max(0, (parseFloat(prof.total_hours)||0) - (parseFloat(role.hours_credit)||0)) }).eq('id', su.volunteer_id);
- }
- }
- }
- }
- }
- await sb.from('signups').delete().eq('event_id', id);
- await sb.from('event_roles').delete().eq('event_id', id);
- await sb.from('events').delete().eq('id', id);
- setLoading(false);
- toast('Event deleted.');
- await loadData();
- showPage('events');
+  if (!confirm('Are you sure you want to delete this event? This cannot be undone.')) return;
+  setLoading(true);
+  await sb.from('signups').delete().eq('event_id', id);   // trigger deducts hours
+  await sb.from('event_roles').delete().eq('event_id', id);
+  await sb.from('events').delete().eq('id', id);
+  setLoading(false);
+  toast('Event deleted.');
+  await loadData();
+  showPage('events');
 }
 
 // Helper: compute auto hours display for a role card
