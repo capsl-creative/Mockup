@@ -1437,7 +1437,9 @@ function openDayEditor(eventId, dateStr){
 }
 
 let _dayRoleCount = 0;
-function dayRoleRow(r={}, i=0, tz){
+function dayRoleRow(r={}, i=0, tz, dateStr){
+ const st = r.start_time ? utcToZonedInput(r.start_time, tz).slice(11,16) : '';
+ const et = r.end_time ? utcToZonedInput(r.end_time, tz).slice(11,16) : '';
  return `<div class="role-editor-card day-role-row">
  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
  <span style="font-weight:800;font-size:.88rem;color:var(--text)">Role</span>
@@ -1448,6 +1450,10 @@ function dayRoleRow(r={}, i=0, tz){
  <div class="form-group"><label>Capacity</label><input type="number" class="dr-cap" value="${r.capacity||1}" min="1"></div>
  </div>
  <div class="form-group"><label>Description</label><textarea class="dr-desc" style="min-height:50px">${esc(r.description||'')}</textarea></div>
+ <div class="form-row">
+ <div class="form-group"><label>Start Time <span style="font-weight:400;color:var(--text-muted);font-size:.75em">(blank = same as event default)</span></label><input type="time" class="dr-start" value="${st}"></div>
+ <div class="form-group"><label>End Time</label><input type="time" class="dr-end" value="${et}"></div>
+ </div>
  <div class="form-group"><label>Hours Credit</label><input type="number" class="dr-hours" value="${r.hours_credit||''}" step="0.5" placeholder="e.g. 3" style="max-width:140px"></div>
  </div>`;
 }
