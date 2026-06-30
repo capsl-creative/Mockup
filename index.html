@@ -1437,7 +1437,8 @@ function openDayEditor(eventId, dateStr){
 }
 
 let _dayRoleCount = 0;
-function dayRoleRow(r={}, i=0, tz, dateStr){
+let _dayEditorTz = null, _dayEditorDateStr = null;
+function addDayRoleRow(){ document.getElementById('day-roles-list').insertAdjacentHTML('beforeend', dayRoleRow({}, ++_dayRoleCount, _dayEditorTz, _dayEditorDateStr)); }
  const st = r.start_time ? utcToZonedInput(r.start_time, tz).slice(11,16) : '';
  const et = r.end_time ? utcToZonedInput(r.end_time, tz).slice(11,16) : '';
  return `<div class="role-editor-card day-role-row">
