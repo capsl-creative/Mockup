@@ -1339,8 +1339,7 @@ function renderSeriesDays(){
  <div class="role-header">
  <div>
  <div class="role-name">${esc(role.name)}</div>
- ${role.start_time?`<div class="role-time">${fmtTime(role.start_time, e.time_zone)}${role.end_time?' – '+fmtTime(role.end_time, e.time_zone):''} ${tzAbbr(role.start_time, e.time_zone)}</div>`:''}
- </div>
+${(()=>{ const rs=role.start_time||e.start_time, re=role.end_time||e.end_time; return rs?`<div class="role-time">${fmtTime(rs, e.time_zone)}${re?' – '+fmtTime(re, e.time_zone):''} ${tzAbbr(rs, e.time_zone)}</div>`:''; })()} </div>
  <div style="display:flex;gap:.4rem;align-items:center">${assignBtn}${btn}</div>
  </div>
  ${role.description?`<div class="role-desc">${esc(role.description)}</div>`:''}
