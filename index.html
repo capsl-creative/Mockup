@@ -1439,7 +1439,8 @@ const rows = roles.map((r,i)=>dayRoleRow(r,i,tz,dateStr)).join('');
 
 let _dayRoleCount = 0;
 let _dayEditorTz = null, _dayEditorDateStr = null;
-function addDayRoleRow(){ document.getElementById('day-roles-list').insertAdjacentHTML('beforeend', dayRoleRow({}, ++_dayRoleCount, _dayEditorTz, _dayEditorDateStr)); }
+
+function dayRoleRow(r={}, i=0, tz, dateStr){
  const st = r.start_time ? utcToZonedInput(r.start_time, tz).slice(11,16) : '';
  const et = r.end_time ? utcToZonedInput(r.end_time, tz).slice(11,16) : '';
  return `<div class="role-editor-card day-role-row">
@@ -1459,8 +1460,7 @@ function addDayRoleRow(){ document.getElementById('day-roles-list').insertAdjace
  <div class="form-group"><label>Hours Credit</label><input type="number" class="dr-hours" value="${r.hours_credit||''}" step="0.5" placeholder="e.g. 3" style="max-width:140px"></div>
  </div>`;
 }
-function addDayRoleRow(){ document.getElementById('day-roles-list').insertAdjacentHTML('beforeend', dayRoleRow({}, ++_dayRoleCount)); }
-
+function addDayRoleRow(){ document.getElementById('day-roles-list').insertAdjacentHTML('beforeend', dayRoleRow({}, ++_dayRoleCount, _dayEditorTz, _dayEditorDateStr)); }
 async function saveDayOverride(eventId, dateStr){
  const tz = _dayEditorTz || DEVICE_TZ;
 const roles = Array.from(document.querySelectorAll('#day-roles-list .day-role-row')).map(c=>{
