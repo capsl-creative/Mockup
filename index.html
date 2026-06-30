@@ -1419,8 +1419,9 @@ async function unsignupSeries(signupId, eventId){
 function openDayEditor(eventId, dateStr){
  const e = allEvents.find(ev=>ev.id===eventId); if(!e) return;
  const tz = e.time_zone || DEVICE_TZ;
- const { roles } = rolesForDay(e, dateStr);
- const rows = roles.map((r,i)=>dayRoleRow(r,i,tz)).join('');
+_dayEditorTz = tz; _dayEditorDateStr = dateStr;
+const { roles } = rolesForDay(e, dateStr);
+const rows = roles.map((r,i)=>dayRoleRow(r,i,tz,dateStr)).join('');
  const html = `
  <p style="font-size:.85rem;color:var(--text-muted);line-height:1.6;margin-bottom:1rem">
  Customize the roles for <strong>${_dayLabel(dateStr)}</strong> only. The default daily roles stay the same on every other day.
