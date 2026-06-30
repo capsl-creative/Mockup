@@ -933,8 +933,13 @@ async function loadData() {
  sb.from('join_requests').select('*').eq('volunteer_id', currentUser.id),
  currentProfile?.is_admin ? sb.from('join_requests').select('*, profiles:volunteer_id(first_name, last_name, email), programs:program_id(name, color)').eq('tenant_slug', slug).eq('status', 'pending').order('created_at') : Promise.resolve({data:[]})
  ]);
- allEvents = evRes.data || [];
- allPrograms = progRes.data || [];
+allEvents = evRes.data || [];
+// Load each event's roles alphabetically by name
+allEvents.forEach(e => {
+  (e.event_roles || []).sort((a, b) =>
+    (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' })
+  );
+}); allPrograms = progRes.data || [];
  allProgramsFull = progRes.data || [];
  if (currentProfile?.is_admin) allVolunteers = volRes.data || [];
 
