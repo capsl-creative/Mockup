@@ -1462,12 +1462,19 @@ function addDayRoleRow(){ document.getElementById('day-roles-list').insertAdjace
 function addDayRoleRow(){ document.getElementById('day-roles-list').insertAdjacentHTML('beforeend', dayRoleRow({}, ++_dayRoleCount)); }
 
 async function saveDayOverride(eventId, dateStr){
- const roles = Array.from(document.querySelectorAll('#day-roles-list .day-role-row')).map(c=>({
+ const tz = _dayEditorTz || DEVICE_TZ;
+const roles = Array.from(document.querySelectorAll('#day-roles-list .day-role-row')).map(c=>{
+ const st = c.querySelector('.dr-start').value;
+ const et = c.querySelector('.dr-end').value;
+ return {
  name: c.querySelector('.dr-name').value.trim(),
  capacity: parseInt(c.querySelector('.dr-cap').value)||1,
  description: c.querySelector('.dr-desc').value.trim()||null,
  hours_credit: parseFloat(c.querySelector('.dr-hours').value)||null,
- })).filter(r=>r.name);
+ start_time: st ? zonedToUTC(dateStr+'T'+st, tz) : null,
+ end_time: et ? zonedToUTC(dateStr+'T'+et, tz) : null,
+ };
+}).filter(r=>r.name);
  setLoading(true);
  // Clear this day entirely: existing sign-ups for the date + old override roles.
  await sb.from('signups').delete().eq('event_id', eventId).eq('occurrence_date', dateStr);
