@@ -1529,7 +1529,7 @@ function openEvent(id) {
  adminBtns.style.display = 'flex';
  adminBtns.innerHTML = `<button class="btn btn-outline btn-sm" onclick="editEvent('${id}')">Edit Sign Up</button>
  ${e.status==='draft'?`<button class="btn btn-primary btn-sm" onclick="publishEvent('${id}')">Publish</button>`:''}
- ${e.status==='published' && (e.program_id || e.all_volunteers)?`<button class="btn btn-outline btn-sm" onclick="sendSignupReminder('${id}')">📣 Send Signup Reminder</button>`:''}
+ ${e.status==='published' && (e.program_id || e.all_volunteers)?`<button class="btn btn-outline btn-sm" onclick="sendSignupReminder('${id}')">Send Signup Reminder</button>`:''}
  <button class="btn btn-outline btn-sm" onclick="openAttendanceModal('${id}')"> Mark Attendance</button>
  <button class="btn btn-danger btn-sm" onclick="deleteEvent('${id}')">Delete Sign Up</button>`;
  }
