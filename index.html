@@ -3140,8 +3140,12 @@ async function saveEvent(status) {
  if (error) { setLoading(false); toast(error.message, true); return; }
  evId = data.id;
  if (evId && roles.length) {
- const { _id,...rest } = roles[0]; // strip _id for inserts
- await sb.from('event_roles').insert(roles.map(({_id,...r})=>({...r, event_id:evId})));
+ const { error: rolesError } = await sb.from('event_roles').insert(roles.map(({_id,...r})=>({...r, event_id:evId})));
+ if (rolesError) {
+ setLoading(false);
+ toast('Sign Up was created, but the shifts failed to save: ' + rolesError.message, true);
+ return;
+ }
  }
  // If this event was created from a template that had day-specific role
  // overrides, recreate them now, shifted onto this event's actual dates —
@@ -3167,7 +3171,14 @@ async function saveEvent(status) {
  });
  });
  });
- if (overrideRows.length) await sb.from('event_roles').insert(overrideRows);
+  if (overrideRows.length) {
+ const { error: overrideError } = await sb.from('event_roles').insert(overrideRows);
+ if (overrideError) {
+ setLoading(false);
+ toast('Sign Up was created, but some day-specific shifts failed to save: ' + overrideError.message, true);
+ return;
+ }
+ }
  }
  }
 
